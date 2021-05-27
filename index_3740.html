@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>IFE ECMAScript</title>
+    <style type="text/css">
+    </style>
+</head>
+
+<body>
+
+    <br><button id="button">保存</button><br>
+    <div id="table-wrapper">
+    </div>
+
+    <script src="js/table.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        const z_reg = /^(([0-9])|([1-9]([0-9]+)))$/;
+        const DataModel = localStorage.getItem("DataModel").split(",");
+        const DataCount = localStorage.getItem("DataCount");
+        var value = 0;
+        var edit_obj;
+        
+        if (DataCount == 0) {
+            renderTable(document.getElementById("table-wrapper"), sourceData, 3, 3);
+        } else {
+            var result = "<table border='1px'>" + "<thead><td>商品</td><td>地区</td><td>1月</td><td>2月</td><td>3月</td><td>4月</td>" +
+                "<td>5月</td><td>6月</td><td>7月</td><td>8月</td><td>9月</td><td>10月</td><td>11月</td><td>12月</td></thead>";
+            const regionnum = 3;
+            for (let i = 0; i < sourceData.length; i++) {
+                const element = sourceData[i];
+                if (i == 0 || i == regionnum || i == regionnum * 2) {
+                    result = result + "<tr><td rowspan=" + regionnum + ">" + element.product + "</td><td>" + element.region + "</td>";
+                } else {
+                    result = result + "<tr><td>" + element.region + "</td>";
+                }
+                for (let j = 12 * i; j < 12 * i + 12; j++) {
+                    const element1 = DataModel[j];
+                    result = result + "<td class='num-input'>" + element1 + "<span style='display:none'>编辑</span></td>"
+
+                }
+                result += "</tr>";
+            }
+            document.getElementById("table-wrapper").innerHTML = result
+        }
+
+        var num_inputs = document.getElementsByClassName("num-input");
+        for (let i = 0; i < num_inputs.length; i++) {
+            const element = num_inputs[i];
+            element.onmouseover = function () {
+                if (element.getElementsByTagName("span").length > 0) {
+                    element.getElementsByTagName("span")[0].style.display = "block";
+                }
+
+            }
+            element.onmouseout = function () {
+                if (element.getElementsByTagName("span").length > 0) {
+                    element.getElementsByTagName("span")[0].style.display = "none";
+                }
+            }
+            element.onclick = function () {
+                if (!isNaN(parseInt(element.innerHTML)) && edit_obj == null) {
+                    value = parseInt(element.innerHTML);
+                    edit_obj = element;
+                    element.innerHTML = "<input type='text' value=" + value + " onkeydown='input(event)' /> <button onclick='button1()'>取消</button><button onclick='button2()'>确定</button>";
+                }
+            }
+
+
+        }
+
+        function button1() {
+            edit_obj.innerHTML = value + "<span style='display:none'>编辑</span>";
+            edit_obj = null;
+        }
+        function button2() {
+            let value = edit_obj.getElementsByTagName("input")[0].value;
+            if (!z_reg.test(value)) {
+                alert("不是正确的数字");
+            }
+            edit_obj.innerHTML = value + "<span style='display:none'>编辑</span>";
+            edit_obj = null;
+        }
+        
+        function input(event){
+            if (event.keyCode == 13) {
+                //回车
+                button2();
+            }else if (event.keyCode == 27) {
+                // esc 全选
+                button1();
+            }
+        }
+
+        
+    </script>
+</body>
+
+</html>
